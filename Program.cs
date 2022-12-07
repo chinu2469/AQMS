@@ -1,7 +1,13 @@
 using AQMS.Data;
 using Microsoft.EntityFrameworkCore;
+using Serilog;    // this package for logging
+//using Microsoft.Extensions.Logging;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
+
+
 
 // Add services to the container.
 
@@ -14,6 +20,17 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AQMSapiDbContext>(Options => Options.UseSqlServer(
     builder.Configuration.GetConnectionString("AQMSapiConString")
     ));
+
+//logs
+var loggrer = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.File("log/AQMSlogs.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();                     // serilog obj
+
+
+builder.Logging.ClearProviders();       // clean old log method
+builder.Logging.AddSerilog(loggrer);   //  adding serilog as log
+
 
 
 var app = builder.Build();
