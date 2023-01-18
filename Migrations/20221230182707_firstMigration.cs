@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace AQMS.Migrations
 {
     /// <inheritdoc />
-    public partial class Firstmigration : Migration
+    public partial class firstMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,9 +15,10 @@ namespace AQMS.Migrations
                 name: "aQMSdatas",
                 columns: table => new
                 {
-                    ID = table.Column<int>(type: "int", nullable: false)
+                    ID = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    floor = table.Column<int>(type: "int", nullable: false),
                     O2 = table.Column<int>(type: "int", nullable: false),
                     co2 = table.Column<int>(type: "int", nullable: false),
                     SO2 = table.Column<int>(type: "int", nullable: false),

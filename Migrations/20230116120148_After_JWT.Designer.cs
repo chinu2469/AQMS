@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AQMS.Migrations
 {
     [DbContext(typeof(AQMSapiDbContext))]
-    [Migration("20221129085504_First migration")]
-    partial class Firstmigration
+    [Migration("20230116120148_After_JWT")]
+    partial class AfterJWT
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,11 +27,11 @@ namespace AQMS.Migrations
 
             modelBuilder.Entity("AQMS.Model.AQMSdata", b =>
                 {
-                    b.Property<int>("ID")
+                    b.Property<long>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("ID"));
 
                     b.Property<int>("C")
                         .HasColumnType("int");
@@ -48,6 +48,9 @@ namespace AQMS.Migrations
                     b.Property<int>("SO2")
                         .HasColumnType("int");
 
+                    b.Property<int>("SensorID")
+                        .HasColumnType("int");
+
                     b.Property<int>("Temp")
                         .HasColumnType("int");
 
@@ -57,9 +60,37 @@ namespace AQMS.Migrations
                     b.Property<DateTime>("date")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("floor")
+                        .HasColumnType("int");
+
                     b.HasKey("ID");
 
                     b.ToTable("aQMSdatas");
+                });
+
+            modelBuilder.Entity("AQMS.Model.Users", b =>
+                {
+                    b.Property<int>("UserID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserID"));
+
+                    b.Property<string>("MobileNo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("UserID");
+
+                    b.ToTable("Users");
                 });
 #pragma warning restore 612, 618
         }

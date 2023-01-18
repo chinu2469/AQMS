@@ -12,5 +12,6 @@ namespace AQMS.Data
         }
 
         public DbSet<AQMSdata> aQMSdatas { get; set; }
+        public DbSet<Users> Users { get; set; }
     }
 }

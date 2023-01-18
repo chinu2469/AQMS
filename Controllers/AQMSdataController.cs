@@ -1,9 +1,11 @@
 ﻿using AQMS.Data;
+using AQMS.Data.repository;
 using AQMS.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Serilog;
+using Serilog.Core;
 using System.Net;
 using System.Net.Http;
 
@@ -16,38 +18,33 @@ namespace AQMS.Controllers
     [ApiController]
     public class AQMSdataController : Controller
     {
-        // creting private object for this class only
-        private readonly AQMSapiDbContext _dbContext;
-        // logger
-        private readonly ILogger<AQMSdataController> _logger;
-        public AQMSdataController(AQMSapiDbContext dbContext , ILogger<AQMSdataController> logger)
+        // creting private instance of repository to acces its method in this class only
+        private readonly IAqmsRepository _dataset;
+        private readonly ILogger<AQMSapiDbContext> _logger;             //logger instance to get all logger method
+        public AQMSdataController(IAqmsRepository dataset, ILogger<AQMSapiDbContext> logger)
         {
-            this._dbContext = dbContext;
+            this._dataset = dataset;                                    //assigning instance
             this._logger = logger;
         }
 
-      
-
-
         [HttpGet]
-        public IActionResult Getdata() 
+        [Authorize]
+        public ActionResult Getalldata() 
         {
-
             try
             {
-                _logger.LogInformation("-------***************************getting all data*************************-------");
-                //Log.Information("get all data'");
-                IEnumerable<AQMSdata>? data = _dbContext.aQMSdatas.ToList();
+                _logger.LogInformation("-------********************-------getting all data-------****************-------");
+                IEnumerable<AQMSdata>? data = _dataset.Getall();        //use getall method to retrive data from database
                 if (data.Count() == 0)
                 {
                     throw new Exception("data not found");
                 }
-                return Ok(data);
+                return Ok(data);                                    //return enumerable object with 200
             }
             catch (Exception ex)
             {
                 _logger.LogInformation(ex.Message);
-                return BadRequest(ex.Message);
+                return BadRequest(ex.Message);                       //returns badrequest
             }
         }
 
@@ -58,13 +55,16 @@ namespace AQMS.Controllers
         {
             try
             {
-                //if(aqmsObj != null)
-                //{
-                _logger.LogInformation("-------***************************posting all data*************************-------");
-                _dbContext.aQMSdatas.Add(aqmsObj);
-                _dbContext.SaveChanges();
-                return Ok(aqmsObj);
-                //}
+                if(aqmsObj != null)
+                {
+                _logger.LogInformation("-------********************-------posting all data-------******************-------");
+                _dataset.Post(aqmsObj);
+                return Ok(aqmsObj);                                 //uses post method from repository to post whole object
+                }
+                else
+                {
+                    throw (new Exception("data is null here"));     //throws specific exeption
+                }
             }
             catch (Exception ex)
             {
@@ -74,15 +74,14 @@ namespace AQMS.Controllers
         }
 
         [HttpGet("{id}")]
-        public ActionResult Get(int id) 
+        public ActionResult Getbyid(int id) 
         {
             try
             {
-                if (id != null && id != 0 ) // how to ccheck if it exist or not
+                if (id != null && id != 0 && _dataset.Exists(id)) //  to ccheck if it exist or not
                 {
-                    _logger.LogInformation("-------***************************gatting single data*************************-------");
-                    return (Ok(_dbContext.aQMSdatas.FirstOrDefault(x => x.ID == id)));
-                    
+                    _logger.LogInformation("-------*********************-------gatting single data-------******************-------");
+                    return (Ok(_dataset.Get(id)));   //_we get only one oject
                 }
                 else
                 {
@@ -103,20 +102,10 @@ namespace AQMS.Controllers
         {
             try
             {
-                _logger.LogInformation("-------***************************updating data*************************-------");
-                if (_dbContext.aQMSdatas.Any(x => x.ID == id))
+                _logger.LogInformation("-------*******************-------updating data-------*****************-------");
+                if (_dataset.Exists(id)) //checks that id exist or not
                 {
-                    var NewData = _dbContext.aQMSdatas.FirstOrDefault(x => x.ID == id);
-                    NewData.date = aqmsObj.date;
-                    NewData.CO = aqmsObj.CO;
-                    NewData.co2 = aqmsObj.co2;
-                    NewData.C = aqmsObj.C;
-                    NewData.SO2 = aqmsObj.SO2;
-                    NewData.O2 = aqmsObj.O2;
-                    NewData.Temp = aqmsObj.Temp;
-                    NewData.PM = aqmsObj.PM;
-
-                    _dbContext.SaveChanges();
+                    _dataset.Update(id, aqmsObj);                             //uses update method in repository to update data
                 }
                 else
                 {
@@ -126,7 +115,6 @@ namespace AQMS.Controllers
             catch(Exception ex)
             {
                 _logger.LogInformation(ex.Message);
-                //return BadRequest(ex.Message);
             }
             
         }
@@ -139,12 +127,10 @@ namespace AQMS.Controllers
             try
             {
                 _logger.LogInformation("-------***************************deleting data*************************-------");
-                AQMSdata aqmsObj = _dbContext.aQMSdatas.FirstOrDefault(x => x.ID == id);
+                AQMSdata aqmsObj = _dataset.Get(id);//_dbContext.aQMSdatas.FirstOrDefault(x => x.ID == id);
                 if(aqmsObj != null)                   //_dbContext.aQMSdatas.Any(x => x.ID == id)
                 {
-                    
-                    _dbContext.aQMSdatas.Remove(aqmsObj);
-                    _dbContext.SaveChanges();
+                    _dataset.Delete(aqmsObj);
                 }
                 else
                 {
@@ -153,10 +139,42 @@ namespace AQMS.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
-               
+                _logger.LogError(ex.Message);              
             }
         }
-       
+
+        [HttpGet]           //last row of the table is returned by this api call so the=at we can display live data on screen
+        [Route("/[controller]/LastRowdata")]                        //specify the adress to avoid confussion of multiple get methods
+        public ActionResult LastRowdata()
+        {
+            try
+            {
+                _logger.LogInformation("-------***************************getting last row of data*************************-------");
+                return (Ok(_dataset.LastRow()));
+                 
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet]                                                //last row of given floor returns
+        [Route("/[controller]/LastofFloor")]                    //specify the adress to avoid confussion of multiple get methods
+        public ActionResult LastofFloor(int floor)
+        {
+            try
+            {
+                _logger.LogInformation("-------***************************getting last row of data*************************-------");
+                return (Ok(_dataset.LastFloor(floor)));
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
