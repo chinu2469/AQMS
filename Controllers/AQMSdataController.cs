@@ -142,7 +142,7 @@ namespace AQMS.Controllers
                 _logger.LogError(ex.Message);              
             }
         }
-
+        [Authorize]
         [HttpGet]           //last row of the table is returned by this api call so the=at we can display live data on screen
         [Route("/[controller]/LastRowdata")]                        //specify the adress to avoid confussion of multiple get methods
         public ActionResult LastRowdata()
@@ -168,6 +168,60 @@ namespace AQMS.Controllers
             {
                 _logger.LogInformation("-------***************************getting last row of data*************************-------");
                 return (Ok(_dataset.LastFloor(floor)));
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet]                                                //data for the day
+        [Route("/[controller]/ByDay")]                    //specify the adress to avoid confussion of multiple get methods
+        public ActionResult ByDay()
+        {
+            try
+            {
+                _logger.LogInformation("-------***************************getting last row of data*************************-------");
+                IEnumerable<AQMSdata>? data = _dataset.ByDay();
+                return (Ok(data));
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet]                                                //data for the month
+        [Route("/[controller]/ByMonth")]                    //specify the adress to avoid confussion of multiple get methods
+        public ActionResult ByMonth(string month = null)
+        {
+            try
+            {
+                _logger.LogInformation("-------***************************getting last row of data*************************-------");
+                IEnumerable<AQMSdata>? data = _dataset.ByMonth( month = null);
+                return (Ok(data));
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet]                                                //data for the year
+        [Route("/[controller]/ByYear")]                    //specify the adress to avoid confussion of multiple get methods
+        public ActionResult ByYear(int year)
+        {
+            try
+            {
+                _logger.LogInformation("-------***************************getting last row of data*************************-------");
+                IEnumerable<AQMSdata>? data = _dataset.GetDataByYear( year);
+                return (Ok(data));
 
             }
             catch (Exception ex)

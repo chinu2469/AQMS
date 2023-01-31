@@ -13,5 +13,8 @@ namespace AQMS.Data.repository
         bool Exists(int id);
         AQMSdata LastRow();
         AQMSdata LastFloor(int floor);
+        List<AQMSdata> ByDay();
+        List<AQMSdata> ByMonth(string month = null);
+        List<AQMSdata> GetDataByYear(int year);
     }
 }

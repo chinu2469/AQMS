@@ -60,5 +60,71 @@ namespace AQMS.Data.repository
         {
             return _dbContext.aQMSdatas.OrderBy(x => x.ID).LastOrDefault(x=> x.floor == floor);
         }
+        public List<AQMSdata> ByDay()                            //returns last data of day
+        {
+            return _dbContext.aQMSdatas.Where(x => x.date.Day == DateTime.Now.Day).ToList();
+        }
+        public List<AQMSdata> ByMonth(string month = null)                                                  //sends all data in table
+        {
+            var lastMonth = DateTime.Now.AddMonths(-1);
+            List<AQMSdata> dataByMonth = _dbContext.aQMSdatas.Where(x => x.date >= lastMonth && x.date <= DateTime.Now).ToList();
+            if (!string.IsNullOrEmpty(month))
+            {
+                switch (month)
+                {
+                    case "January":
+                        dataByMonth = _dbContext.aQMSdatas.Where(x => x.date.Month == 1).ToList();
+                        break;
+                    case "February":
+                        dataByMonth = _dbContext.aQMSdatas.Where(x => x.date.Month == 2).ToList();
+                        break;
+                    case "March":
+                        dataByMonth = _dbContext.aQMSdatas.Where(x => x.date.Month == 3).ToList();
+                        break;
+                    case "April":
+                        dataByMonth = _dbContext.aQMSdatas.Where(x => x.date.Month == 4).ToList();
+                        break;
+                    case "May":
+                        dataByMonth = _dbContext.aQMSdatas.Where(x => x.date.Month == 5).ToList();
+                        break;
+                    case "June":
+                        dataByMonth = _dbContext.aQMSdatas.Where(x => x.date.Month == 6).ToList();
+                        break;
+                    case "July":
+                        dataByMonth = _dbContext.aQMSdatas.Where(x => x.date.Month == 7).ToList();
+                        break;
+                    case "August":
+                        dataByMonth = _dbContext.aQMSdatas.Where(x => x.date.Month == 8).ToList();
+                        break;
+                    case "September":
+                        dataByMonth = _dbContext.aQMSdatas.Where(x => x.date.Month == 9).ToList();
+                        break;
+                    case "Octuber":
+                        dataByMonth = _dbContext.aQMSdatas.Where(x => x.date.Month == 10).ToList();
+                        break;
+                    case "November":
+                        dataByMonth = _dbContext.aQMSdatas.Where(x => x.date.Month == 11).ToList();
+                        break;
+                    case "December":
+                        dataByMonth = _dbContext.aQMSdatas.Where(x => x.date.Month == 12).ToList();
+                        break;
+                    
+                    default:
+                        dataByMonth = _dbContext.aQMSdatas.Where(x => x.date >= lastMonth && x.date < DateTime.Now).ToList();
+
+                        break;
+                }
+            }
+            return dataByMonth;
+        }
+
+        public List<AQMSdata> GetDataByYear(int year)
+        {
+            var startDate = new DateTime(year, 1, 1);
+            var endDate = new DateTime(year, 12, 31);
+            var dataByYear = _dbContext.aQMSdatas.Where(x => x.date >= startDate && x.date <= endDate).ToList();
+            return dataByYear;
+        }
+
     }
 }
