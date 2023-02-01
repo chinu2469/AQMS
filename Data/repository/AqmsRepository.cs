@@ -99,7 +99,7 @@ namespace AQMS.Data.repository
                     case "September":
                         dataByMonth = _dbContext.aQMSdatas.Where(x => x.date.Month == 9).ToList();
                         break;
-                    case "Octuber":
+                    case "October":
                         dataByMonth = _dbContext.aQMSdatas.Where(x => x.date.Month == 10).ToList();
                         break;
                     case "November":
@@ -110,7 +110,8 @@ namespace AQMS.Data.repository
                         break;
                     
                     default:
-                        dataByMonth = _dbContext.aQMSdatas.Where(x => x.date >= lastMonth && x.date < DateTime.Now).ToList();
+                    
+                        throw new ArgumentException("Invalid month value");
 
                         break;
                 }

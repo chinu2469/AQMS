@@ -197,12 +197,12 @@ namespace AQMS.Controllers
 
         [HttpGet]                                                //data for the month
         [Route("/[controller]/ByMonth")]                    //specify the adress to avoid confussion of multiple get methods
-        public ActionResult ByMonth(string month = null)
+        public ActionResult ByMonth(string? month = null)
         {
             try
             {
                 _logger.LogInformation("-------***************************getting last row of data*************************-------");
-                IEnumerable<AQMSdata>? data = _dataset.ByMonth( month = null);
+                IEnumerable<AQMSdata>? data = _dataset.ByMonth( month );
                 return (Ok(data));
 
             }
