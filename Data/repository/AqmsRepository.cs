@@ -64,7 +64,7 @@ namespace AQMS.Data.repository
         {
             return _dbContext.aQMSdatas.Where(x => x.date.Day == DateTime.Now.Day).ToList();
         }
-        public List<AQMSdata> ByMonth(string month = null)                                                  //sends all data in table
+        public List<AQMSdata> ByMonth(string? month = null)                                                  //sends all data in table
         {
             var lastMonth = DateTime.Now.AddMonths(-1);
             List<AQMSdata> dataByMonth = _dbContext.aQMSdatas.Where(x => x.date >= lastMonth && x.date <= DateTime.Now).ToList();
