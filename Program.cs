@@ -16,7 +16,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 
-// Add services to the container.
+// Add  the controller
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -24,39 +24,15 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 //builder.Services.AddDbContext<AQMSapiDbContext>(Options => Options.UseInMemoryDatabase("AQMSdata"));
+
+//db connection for external database
 builder.Services.AddDbContext<AQMSapiDbContext>(Options => Options.UseSqlServer(
     builder.Configuration.GetConnectionString("AQMSapiConString")
     ));
 
 //jwt token 
 builder.Services.AddAuthorization();
-//builder.Services.AddSwaggerGen(c =>
-//{
-//    c.SwaggerDoc("v1", new OpenApiInfo { Title = "DemoJWT", Version = "v1" });
-//    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-//    {
-//        Description = "Jwt Authorization",
-//        Name = "Authorization",
-//        In = ParameterLocation.Header,
-//        Type = SecuritySchemeType.ApiKey,
-//        Scheme = "Bearer"
-//    });
 
-//    c.AddSecurityRequirement(new OpenApiSecurityRequirement {
-//    {
-//    new OpenApiSecurityScheme
-//    {
-//        Reference = new OpenApiReference
-//        {
-//            Type = ReferenceType. SecurityScheme,
-//            Id= "Bearer"
-//        }
-//        },
-//        new string[] {}
-//        }
-//    });
-
-//});
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
@@ -84,12 +60,12 @@ builder.Logging.AddSerilog(loggrer);   //  adding serilog as log
 builder.Services.AddTransient<IAqmsRepository,AqmsRepository>();
 
 //configure for localhost
-var devCorsPolicy = "devCorsPolicy";
+var devCorsPolicy = "AllowMyReactApp";
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(devCorsPolicy, builder =>
     {
-        builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+        builder.WithOrigins("https://aqmsapp.azurewebsites.net","http://localhost:3000").AllowAnyMethod().AllowAnyHeader();
     });
 });
 
@@ -103,10 +79,12 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "DemoJWTToken v1"));
-    app.UseCors(devCorsPolicy);
+    app.UseCors("devCorsPolicy");
 }
 
+
 app.UseHttpsRedirection();
+app.UseCors(devCorsPolicy);
 
 app.UseAuthentication();
 

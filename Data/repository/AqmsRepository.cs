@@ -60,11 +60,11 @@ namespace AQMS.Data.repository
         {
             return _dbContext.aQMSdatas.OrderBy(x => x.ID).LastOrDefault(x=> x.floor == floor);
         }
-        public List<AQMSdata> ByDay()                            //returns last data of day
+        public List<AQMSdata> ByDay()                            //returns all data of day
         {
             return _dbContext.aQMSdatas.Where(x => x.date.Day == DateTime.Now.Day).ToList();
         }
-        public List<AQMSdata> ByMonth(string? month = null)                                                  //sends all data in table
+        public List<AQMSdata> ByMonth(string? month = null)       //sends all data in table for that month
         {
             var lastMonth = DateTime.Now.AddMonths(-1);
             List<AQMSdata> dataByMonth = _dbContext.aQMSdatas.Where(x => x.date >= lastMonth && x.date <= DateTime.Now).ToList();
@@ -119,7 +119,7 @@ namespace AQMS.Data.repository
             return dataByMonth;
         }
 
-        public List<AQMSdata> GetDataByYear(int year)
+        public List<AQMSdata> GetDataByYear(int year)       //gives all data for the year for provided year
         {
             var startDate = new DateTime(year, 1, 1);
             var endDate = new DateTime(year, 12, 31);

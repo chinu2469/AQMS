@@ -17,50 +17,71 @@ namespace AQMS.Controllers
     {
         public IConfiguration _configuration;
         private readonly AQMSapiDbContext _dbContext;
-        public JwtTokenController(AQMSapiDbContext dbContext, IConfiguration configuration)
+        private readonly ILogger<AQMSapiDbContext> _logger;
+        public JwtTokenController(AQMSapiDbContext dbContext, IConfiguration configuration, ILogger<AQMSapiDbContext> logger)
         {
             _dbContext = dbContext;
             this._configuration = configuration;
+            _logger = logger;
         }
 
         [HttpPost]
         [Route("/[controller]/Login")]
-        public IActionResult Login([FromBody] Users obj)
+        public IActionResult Login([FromBody] Users obj)        //login method for user login
         {
-            var currentUser = _dbContext.Users.FirstOrDefault(u => u.UserName == obj.UserName && u.Password == obj.Password);
-            if (currentUser == null)
+            try 
             {
-                return NotFound();
-            }
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Key"]));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-            var claims = new[]
-            {
+                _logger.LogInformation($"-------********************-------logine attempt by {obj.UserName}-------****************-------");
+                var currentUser = _dbContext.Users.FirstOrDefault(u => u.UserName == obj.UserName && u.Password == obj.Password);
+                if (currentUser == null)
+                {
+                    return NotFound();
+                }
+                var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Key"]));
+                var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+                var claims = new[]
+                {
                 new Claim(ClaimTypes.Email , currentUser.Email)
             };
 
-            var token = new JwtSecurityToken(
-                issuer: _configuration["JWT:Issuer"],
-                audience: _configuration["JWT:Audience"],
-                claims: claims,
-                expires: DateTime.Now.AddMinutes(60),
-                signingCredentials: credentials);
-            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
-            return Ok(jwt);
+                var token = new JwtSecurityToken(
+                    issuer: _configuration["JWT:Issuer"],
+                    audience: _configuration["JWT:Audience"],
+                    claims: claims,
+                    expires: DateTime.Now.AddMinutes(60),
+                    signingCredentials: credentials);
+                var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+                _logger.LogInformation($"-------**-------logine success for {obj.UserName}-------**-------");
+                return Ok(jwt);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                return StatusCode(404);
+            }
 
         }
         [HttpPost]
         [Route("/[controller]/Register")]
         public IActionResult Register([FromBody]Users user)
         {
-            var userExists = _dbContext.Users.FirstOrDefault(u => u.UserName == user.UserName);
-            if (userExists != null)
+            try
             {
-                return BadRequest("User with same email already exists");
+                var userExists = _dbContext.Users.FirstOrDefault(u => u.UserName == user.UserName);
+                if (userExists != null)
+                {
+                    return BadRequest("User with same email already exists");
+                }
+                _dbContext.Users.Add(user);
+                _dbContext.SaveChanges();
+                _logger.LogInformation($"-------**-------Register  success for {user.UserName}-------**-------");
+                return StatusCode(StatusCodes.Status201Created);
             }
-            _dbContext.Users.Add(user);
-            _dbContext.SaveChanges();
-            return StatusCode(StatusCodes.Status201Created);
+            catch(Exception ex)
+            {
+                _logger.LogInformation(ex.Message);
+                return StatusCode(StatusCodes.Status404NotFound);
+            }
         }
             
         [HttpGet]

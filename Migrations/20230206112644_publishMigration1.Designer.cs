@@ -4,6 +4,7 @@ using AQMS.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AQMS.Migrations
 {
     [DbContext(typeof(AQMSapiDbContext))]
-    partial class AQMSapiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230206112644_publishMigration1")]
+    partial class publishMigration1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -63,25 +66,6 @@ namespace AQMS.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("aQMSdatas");
-                });
-
-            modelBuilder.Entity("AQMS.Model.DeviceErrors", b =>
-                {
-                    b.Property<int>("ErrorID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ErrorID"));
-
-                    b.Property<int>("SensorID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("floor")
-                        .HasColumnType("int");
-
-                    b.HasKey("ErrorID");
-
-                    b.ToTable("deviceErrors");
                 });
 
             modelBuilder.Entity("AQMS.Model.Users", b =>

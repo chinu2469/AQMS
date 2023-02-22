@@ -44,7 +44,7 @@ namespace AQMS.Controllers
             catch (Exception ex)
             {
                 _logger.LogInformation(ex.Message);
-                return BadRequest(ex.Message);                       //returns badrequest
+                return StatusCode(StatusCodes.Status404NotFound);                       //returns badrequest
             }
         }
 
@@ -232,3 +232,4 @@ namespace AQMS.Controllers
         }
     }
 }
+
